@@ -23,3 +23,9 @@ func TestRegiste(t *testing.T) {
 
 	time.Sleep(time.Hour * 4)
 }
+
+func TestTargetParse(t *testing.T) {
+	target := parseTarget("hi://kai/serverA")
+
+	t.Logf("%+v", target)
+}

@@ -1,0 +1,15 @@
+syntax="proto3";
+
+package pb;
+
+service ServerA {
+    rpc Hi (HiReq) returns (HiResp);
+}
+
+message HiReq {
+    string name = 1;
+}
+
+message HiResp {
+    string echo = 1;
+}
