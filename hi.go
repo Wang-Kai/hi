@@ -87,9 +87,9 @@ func (h *hi) Register(name, addr string) error {
 
 	ticker := time.NewTicker(time.Second * 8)
 	go func() {
-		for t := range ticker.C {
+		for {
 			cli.KeepAliveOnce(context.Background(), leaseResp.ID)
-			fmt.Printf("Renew /%s/%s/%s at %s \n", h.Scheme, name, addr, t.Format("15:04:05 2006-01-02"))
+			<-ticker.C
 		}
 	}()
 

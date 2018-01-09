@@ -6,10 +6,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/hi"
-	"github.com/hi/example/pb"
+	"github.com/Wang-Kai/hi"
+	"github.com/Wang-Kai/hi/example/pb"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/resolver"
 )
 
@@ -20,13 +19,9 @@ var (
 func main() {
 	hiBuilder := hi.NewResolverBuilder([]string{"localhost:2379"})
 	resolver.Register(&hiBuilder)
-	rr := balancer.Get("round_robin")
-	// grpc.RoundRobin(r)
-	var dialAddr = fmt.Sprintf("%s://kai/%s", hiBuilder.Scheme(), "serverA")
+	var dialAddr = fmt.Sprintf("%s://foo/%s", hiBuilder.Scheme(), "serverA")
 
-	println(dialAddr)
-
-	conn, err := grpc.Dial(dialAddr, grpc.WithBalancerBuilder(rr), grpc.WithInsecure())
+	conn, err := grpc.Dial(dialAddr, grpc.WithBalancerName("round_robin"), grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,10 +31,8 @@ func main() {
 
 	ticker := time.NewTicker(time.Second * 3)
 	for {
-
 		req := &pb.HiReq{Name: "kai"}
 		resp, err := client.Hi(context.Background(), req)
-		println("++++++++++++")
 		if err != nil {
 			log.Fatal(err)
 		}

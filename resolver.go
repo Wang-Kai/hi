@@ -8,7 +8,7 @@ import (
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
-	"github.com/wothing/log"
+	"github.com/goushuyun/log"
 	"google.golang.org/grpc/resolver"
 )
 
@@ -74,7 +74,7 @@ func (b *Builder) watch(keyPrefix string) {
 		addrList = append(addrList, addr)
 	}
 
-	log.JsonIndent(addrList)
+	log.JSONIndent(addrList)
 
 	b.cc.NewAddress(addrList)
 

@@ -6,8 +6,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/hi"
-	"github.com/hi/example/pb"
+	"github.com/Wang-Kai/hi"
+	"github.com/Wang-Kai/hi/example/pb"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
