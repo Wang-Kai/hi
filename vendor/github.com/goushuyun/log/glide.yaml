@@ -1,0 +1,10 @@
+package:       github.com/arstd/log
+import:
+- package:     golang.org/x/net
+  repo:          https://github.com/golang/net.git
+  subpackages:
+  - context
+- package:     google.golang.org/grpc
+  version:     v1.2.0
+  subpackages:
+  - metadata

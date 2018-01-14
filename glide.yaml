@@ -1,0 +1,17 @@
+package: github.com/Wang-Kai/hi
+import:
+- package: github.com/coreos/etcd
+  version: v3.3.0-rc.2
+  subpackages:
+  - clientv3
+  - mvcc/mvccpb
+- package: github.com/golang/protobuf
+  subpackages:
+  - proto
+- package: github.com/goushuyun/log
+- package: golang.org/x/net/context
+- package: google.golang.org/grpc
+  version: v1.7.5
+  subpackages:
+  - reflection
+  - resolver
