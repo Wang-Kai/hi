@@ -18,7 +18,7 @@ func TestRegiste(t *testing.T) {
 }
 
 func TestTargetParse(t *testing.T) {
-	target := parseTarget("hi://kai/serverA")
+	target := parseTarget("wonamingv3://author/project/test")
 
 	t.Logf("%+v", target)
 }
