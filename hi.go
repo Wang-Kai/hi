@@ -3,7 +3,6 @@ package hi
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -65,6 +64,7 @@ func (h *hi) Unregister(name string) error {
 func (h *hi) Register(name, addr string) error {
 	var err error
 
+	// create client if not define
 	if cli == nil {
 		cli, err = clientv3.New(clientv3.Config{
 			Endpoints:   h.Endpoints,
@@ -75,21 +75,23 @@ func (h *hi) Register(name, addr string) error {
 		}
 	}
 
+	// create lease with 12s TTL
 	leaseResp, err := cli.Grant(context.Background(), 12)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	_, err = cli.Put(context.Background(), fmt.Sprintf("/%s/%s/%s", h.Scheme, name, addr), addr, clientv3.WithLease(leaseResp.ID))
+	// put key & value
+	key := fmt.Sprintf("%s/%s/%s", h.Scheme, name, addr)
+	_, err = cli.Put(context.Background(), key, addr, clientv3.WithLease(leaseResp.ID))
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	ticker := time.NewTicker(time.Second * 8)
+	// generate a goroutine to keep lease alive per 10s
 	go func() {
-		for {
+		for range time.Tick(time.Second * 10) {
 			cli.KeepAliveOnce(context.Background(), leaseResp.ID)
-			<-ticker.C
 		}
 	}()
 

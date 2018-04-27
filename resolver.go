@@ -55,7 +55,7 @@ func (b *Builder) Build(target resolver.Target, cc resolver.ClientConn, opts res
 	r := &Resolver{}
 
 	log.Infof("Watch ==> %s \n", fmt.Sprintf("/%s/%s/\n", target.Scheme, target.Endpoint))
-	go b.watch(fmt.Sprintf("/%s/%s/", target.Scheme, target.Endpoint))
+	go b.watch(fmt.Sprintf("%s/%s/", target.Scheme, target.Endpoint))
 
 	return r, nil
 }
