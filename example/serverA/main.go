@@ -10,7 +10,6 @@ import (
 	"github.com/Wang-Kai/hi/example/pb"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 const (
@@ -22,7 +21,8 @@ type serverA struct{}
 
 func (s *serverA) Hi(ctx context.Context, req *pb.HiReq) (*pb.HiResp, error) {
 	println("Yeah, it is serverA ...")
-	return &pb.HiResp{Echo: "I see you , " + req.Name}, nil
+
+	return &pb.HiResp{Echo: "Hi " + req.Name + ", this response comes from ServerA"}, nil
 }
 
 func main() {
@@ -40,7 +40,6 @@ func main() {
 
 	s := grpc.NewServer()
 	pb.RegisterServerAServer(s, &serverA{})
-	reflection.Register(s)
 
 	println("Hello, I am serverA ...")
 

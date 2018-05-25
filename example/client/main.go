@@ -29,15 +29,18 @@ func main() {
 
 	client := pb.NewServerAClient(conn)
 
-	ticker := time.NewTicker(time.Second * 3)
-	for {
-		req := &pb.HiReq{Name: "kai"}
-		resp, err := client.Hi(context.Background(), req)
+	for range time.Tick(time.Second * 3) {
+		req := &pb.HiReq{Name: "Foo"}
+
+		ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*5)
+		defer cancelFunc()
+
+		resp, err := client.Hi(ctx, req)
+
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		fmt.Printf("%+v \n", resp)
-		<-ticker.C
 	}
 }

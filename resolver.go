@@ -1,14 +1,21 @@
+/*
+ * Created on Fri May 25 2018
+ *
+ * Copyright (c) WangKai
+ * Email persistence201306@gmail.com
+ */
+
 package hi
 
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
-	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc/resolver"
 )
 
@@ -54,7 +61,7 @@ func (b *Builder) Build(target resolver.Target, cc resolver.ClientConn, opts res
 
 	r := &Resolver{}
 
-	log.Infof("Watch ==> %s \n", fmt.Sprintf("/%s/%s/\n", target.Scheme, target.Endpoint))
+	log.Printf("Watch ==> %s \n", fmt.Sprintf("%s/%s/\n", target.Scheme, target.Endpoint))
 	go b.watch(fmt.Sprintf("%s/%s/", target.Scheme, target.Endpoint))
 
 	return r, nil

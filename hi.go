@@ -1,3 +1,10 @@
+/*
+ * Created on Fri May 25 2018
+ *
+ * Copyright (c) WangKai
+ * Email persistence201306@gmail.com
+ */
+
 package hi
 
 import (
@@ -42,6 +49,7 @@ type hi struct {
 	Scheme    string
 }
 
+// NewHi create a Hi instance
 func NewHi(endpoints []string, scheme string) hi {
 	if scheme == "" {
 		scheme = DefaultScheme
