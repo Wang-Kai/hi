@@ -8,22 +8,20 @@ import (
 
 	"github.com/Wang-Kai/hi"
 	"github.com/Wang-Kai/hi/example/pb"
-
 	"google.golang.org/grpc"
 )
 
-const (
-	srvName = "serverA"
-	port    = ":10014"
+var (
+	srvName = "serverB"
+	port    = ":10015"
 )
 
-type serverA struct{}
+type serverB struct{}
 
-func (s *serverA) Hi(ctx context.Context, req *pb.HiReq) (*pb.HiResp, error) {
+func (s *serverB) Hello(ctx context.Context, req *pb.HelloReq) (*pb.HelloResp, error) {
+	println("Yeah, it is serverB ...")
 
-	println("Yeah, it is serverA1 ...")
-
-	return &pb.HiResp{Echo: "Hi " + req.Name + ", this response comes from ServerA1"}, nil
+	return &pb.HelloResp{Echo: "Hello" + req.Name + " ..."}, nil
 }
 
 func main() {
@@ -32,7 +30,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// register serverA to etcd
 	h := hi.NewHi([]string{"localhost:2379"}, "hi")
 	err = h.Register(srvName, fmt.Sprintf("127.0.0.1%s", port))
 	if err != nil {
@@ -40,10 +37,9 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterServerAServer(s, &serverA{})
+	pb.RegisterServerBServer(s, &serverB{})
 
-	println("Hello, I am serverA ...")
-
+	println("I am serverB ...")
 	if err := s.Serve(lis); err != nil {
 		log.Fatal(err)
 	}

@@ -21,6 +21,7 @@ import (
 
 // Implement resolver.Resolver
 type Resolver struct {
+	cc resolver.ClientConn
 }
 
 func (r *Resolver) Close() {
@@ -29,6 +30,7 @@ func (r *Resolver) Close() {
 
 func (r *Resolver) ResolveNow(opt resolver.ResolveNowOption) {
 	println("Call ResolveNow method")
+
 }
 
 func NewResolverBuilder(etcdEndPoints []string) Builder {
@@ -57,17 +59,17 @@ func (b *Builder) Build(target resolver.Target, cc resolver.ClientConn, opts res
 		}
 	}
 
-	b.cc = cc
-
-	r := &Resolver{}
+	r := &Resolver{
+		cc: cc,
+	}
 
 	log.Printf("Watch ==> %s \n", fmt.Sprintf("%s/%s/\n", target.Scheme, target.Endpoint))
-	go b.watch(fmt.Sprintf("%s/%s/", target.Scheme, target.Endpoint))
+	go r.watcher(fmt.Sprintf("%s/%s/", target.Scheme, target.Endpoint))
 
 	return r, nil
 }
 
-func (b *Builder) watch(keyPrefix string) {
+func (r *Resolver) watcher(keyPrefix string) {
 	var addrList []resolver.Address
 
 	// first get all address under this keyPrefix
@@ -81,7 +83,8 @@ func (b *Builder) watch(keyPrefix string) {
 		addrList = append(addrList, addr)
 	}
 
-	b.cc.NewAddress(addrList)
+	fmt.Printf("%+v \n", addrList)
+	r.cc.NewAddress(addrList)
 
 	// start to watch keys which prefix with keyPrefix
 	wch := cli.Watch(context.Background(), keyPrefix, clientv3.WithPrefix())
@@ -93,12 +96,14 @@ func (b *Builder) watch(keyPrefix string) {
 			case mvccpb.PUT:
 				if !exist(addrList, evKey) {
 					addrList = append(addrList, resolver.Address{Addr: evKey})
-					b.cc.NewAddress(addrList)
+					r.cc.NewAddress(addrList)
+					println("Add an connection: " + evKey)
 				}
 			case mvccpb.DELETE:
 				if list, ok := remove(addrList, evKey); ok {
 					addrList = list
-					b.cc.NewAddress(addrList)
+					r.cc.NewAddress(addrList)
+					println("Remove an connnection: " + evKey)
 				}
 			}
 		}

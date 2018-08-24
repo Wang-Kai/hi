@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net"
@@ -12,10 +13,16 @@ import (
 	"google.golang.org/grpc"
 )
 
-const (
-	srvName = "serverA"
-	port    = ":10013"
+var (
+	svcName *string
+	port    *string
 )
+
+func init() {
+	svcName = flag.String("name", "serverA", "The name of microservice")
+	port = flag.String("port", "10013", "The port of microservice")
+	flag.Parse()
+}
 
 type serverA struct{}
 
@@ -26,14 +33,14 @@ func (s *serverA) Hi(ctx context.Context, req *pb.HiReq) (*pb.HiResp, error) {
 }
 
 func main() {
-	lis, err := net.Listen("tcp", port)
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", *port))
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// register serverA to etcd
 	h := hi.NewHi([]string{"localhost:2379"}, "hi")
-	err = h.Register(srvName, fmt.Sprintf("127.0.0.1%s", port))
+	err = h.Register(*svcName, fmt.Sprintf("127.0.0.1:%s", *port))
 	if err != nil {
 		log.Fatal(err)
 	}

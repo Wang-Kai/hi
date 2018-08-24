@@ -15,32 +15,54 @@ import (
 var (
 	etcdLoc = "localhost:2379"
 )
+var ConnMap = make(map[string]*grpc.ClientConn, 2)
 
-func main() {
+func init() {
+	// register resolver
 	hiBuilder := hi.NewResolverBuilder([]string{"localhost:2379"})
 	resolver.Register(&hiBuilder)
-	var dialAddr = fmt.Sprintf("%s://foo/%s", hiBuilder.Scheme(), "serverA")
 
-	conn, err := grpc.Dial(dialAddr, grpc.WithBalancerName("round_robin"), grpc.WithInsecure())
+}
+
+func main() {
+	// build connection of serverB
+	serverBConn, err := grpc.Dial("hi://author/serverB", grpc.WithInsecure(), grpc.WithBalancerName("round_robin"))
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer conn.Close()
+	println(serverBConn)
+	ConnMap["serverB"] = serverBConn
 
-	client := pb.NewServerAClient(conn)
+	// build connection of serverA
+	serverAConn, err := grpc.Dial("hi://author/serverA", grpc.WithInsecure(), grpc.WithBalancerName("round_robin"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	println(serverAConn)
+	ConnMap["serverA"] = serverAConn
+	defer func() {
+		for _, cc := range ConnMap {
+			cc.Close()
+		}
+	}()
 
 	for range time.Tick(time.Second * 3) {
-		req := &pb.HiReq{Name: "Foo"}
+		println("Call serverB")
+		serverBClient := pb.NewServerBClient(ConnMap["serverB"])
 
-		ctx, cancelFunc := context.WithTimeout(context.Background(), time.Second*5)
-		defer cancelFunc()
-
-		resp, err := client.Hi(ctx, req)
-
+		println("New Client")
+		helloResp, err := serverBClient.Hello(context.Background(), &pb.HelloReq{Name: "China"})
 		if err != nil {
 			log.Fatal(err)
 		}
+		fmt.Printf("%+v \n", helloResp)
 
-		fmt.Printf("%+v \n", resp)
+		println("Call serverA")
+		serverAClient := pb.NewServerAClient(ConnMap["serverA"])
+		hiResp, err := serverAClient.Hi(context.Background(), &pb.HiReq{Name: "kai"})
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%+v \n", hiResp)
 	}
 }
